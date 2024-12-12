@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: laravel8-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: laravel8-app
+  template:
+    metadata:
+      labels:
+        app: laravel8-app
+    spec:
+      containers:
+      - name: laravel8-container
+        image: localhost:5000/laravel8.83:0.0.1
+        ports:
+        - containerPort: 80 # Assuming php8.3 runs on port 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: laravel8-service
+spec:
+  selector:
+    app: laravel8-app
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+  type: ClusterIP
