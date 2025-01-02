@@ -12,7 +12,11 @@ WORKDIR /var/www/html
 # COPY --chown=nginx:nginx --chmod=775 . .
 
 
-COPY --chown=nginx:nginx ./env ./env
+COPY --chown=nginx:nginx composer.json composer.json
+COPY --chown=nginx:nginx composer.lock composer.lock
+COPY --chown=nginx:nginx package.json package.json
+COPY --chown=nginx:nginx .env .env
+COPY --chown=nginx:nginx ./artisan ./artisan
 COPY --chown=nginx:nginx ./app ./app
 COPY --chown=nginx:nginx ./bootstrap ./bootstrap
 COPY --chown=nginx:nginx ./config ./config
@@ -24,7 +28,7 @@ COPY --chown=nginx:nginx ./vendor ./vendor
 COPY --chown=nginx:nginx --chmod=775 ./storage ./storage
 
 
-RUN composer install
+
 
 # Copy Nginx configuration
 #Bookworm
@@ -34,6 +38,12 @@ RUN composer install
 COPY default.conf /etc/nginx/conf.d/default.conf
 
 RUN rm -rf /var/www/html/index.php
+
+USER root 
+RUN wget -O composer-setup.php https://getcomposer.org/installer && \
+    php composer-setup.php --install-dir=/usr/local/bin --filename=composer && \
+    chmod +x /usr/local/bin/composer && \
+    composer install
 
 USER nginx 
 
